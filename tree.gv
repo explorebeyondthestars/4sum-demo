@@ -15,6 +15,8 @@ digraph G {
     node8[label = "{{id | node8} | {<f0> considering | 2 [5] } | { k_value | 0} |{<f1> min_composition | -1} | {<f2> max_composition| -1} | {options_indexes | [5]} | { retained_indexes | [0, 2, 3, 4] } | { dropped_indexes | [1]} | {input | [-2, -1, 0, 0, 1, 2]}} ", style = filled];
     node9[label = "{{id | node9} | {<f0> considering | 2 [5] } | { k_value | 1} |{<f1> min_composition | 0} | {<f2> max_composition| 0} | {options_indexes | [5]} | { retained_indexes | [0, 2, 3] } | { dropped_indexes | [1, 4]} | {input | [-2, -1, 0, 0, 1, 2]}} "];
     node10[label = "{{id | node10} | {<f0> considering | Nil } | { k_value | 0} |{<f1> min_composition | 0} | {<f2> max_composition| 0} | {options_indexes | []} | { retained_indexes | [0, 2, 3, 5] } | { dropped_indexes | [1, 4]} | {input | [-2, -1, 0, 0, 1, 2]}} "];
+    node11[label = "{{id | node11} | {<f0> considering | 1 [4] } | { k_value | 2} |{<f1> min_composition | 1} | {<f2> max_composition| 1} | {options_indexes | [4, 5]} | { retained_indexes | [0, 2] } | { dropped_indexes | [1, 3]} | {input | [-2, -1, 0, 0, 1, 2]}} ", style = filled];
+    node12[label = "{{id | node12} | {<f0> considering | 0 [3] } | { k_value | 3} |{<f1> min_composition | 1} | {<f2> max_composition| 1} | {options_indexes | [3, 4, 5]} | { retained_indexes | [0] } | { dropped_indexes | [1, 2]} | {input | [-2, -1, 0, 0, 1, 2]}} ", style = filled];
 
 
 
@@ -28,6 +30,7 @@ digraph G {
     "node7" -> "node8" [label = "in"];
     "node7" -> "node9" [label = "out"];
     "node9" -> "node10" [label = "in"];
-
+    "node6" -> "node11" [label = "out"];
+    "node5" -> "node12" [label = "out"];
     
 }
