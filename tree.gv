@@ -1,82 +1,24 @@
 digraph G {
 
-    // Input array is: [-2, -1, 0, 0, 1, 2]
+    // Input array is: 
 
     node [shape = record];
 
-    node0[label = "{{<f0> node | -2 }| {<f1> min | -3} | {<f2> max| -3} } "];
+    node0[label = "{{<f0> considering | -2 [0] } | { k_value | 4} |{<f1> min_composition | -3} | {<f2> max_composition| -3} | {options_indexes | [0, 1, 2, 3, 4, 5]} | { retained_indexes | [] } | { dropped_indexes | []} | {input | [-2, -1, 0, 0, 1, 2]} }"];
+    node1[label = "{{<f0> considering | -1 [1] } | { k_value | 3} |{<f1> min_composition | -3} | {<f2> max_composition| 1} | {options_indexes | [1, 2, 3, 4, 5]} | { retained_indexes | [0] } | { dropped_indexes | []} | {input | [-2, -1, 0, 0, 1, 2]}} "];
+    node2[label = "{{<f0> considering | 0 [2] } | { k_value | 2} |{<f1> min_composition | -3} | {<f2> max_composition| 0} | {options_indexes | [2, 3, 4, 5]} | { retained_indexes | [0, 1] } | { dropped_indexes | []} | {input | [-2, -1, 0, 0, 1, 2]}} "];
+    node3[label = "{{<f0> considering | 0 [3] } | { k_value | 1} |{<f1> min_composition | -3} | {<f2> max_composition| -1} | {options_indexes | [3, 4, 5]} | { retained_indexes | [0, 1, 2] } | { dropped_indexes | []} | {input | [-2, -1, 0, 0, 1, 2]}} ", style = filled];
+    node4[label = "{{<f0> considering | 0 [3] } | { k_value | 2} |{<f1> min_composition | -2} | {<f2> max_composition| 0} | {options_indexes | [3, 4, 5]} | { retained_indexes | [0, 1] } | { dropped_indexes | [2]} | {input | [-2, -1, 0, 0, 1, 2]}} "];
+    node5[label = "{{<f0> considering | 0 [2] } | { k_value | 3} |{<f1> min_composition | -1} | {<f2> max_composition| 1} | {options_indexes | [2, 3, 4, 5]} | { retained_indexes | [0] } | { dropped_indexes | [1]} | {input | [-2, -1, 0, 0, 1, 2]}} "];
 
-    node1[label = "{{<f0> node | -1 }| {<f1> min | -3} | {<f2> max| 1} } "];
-    node2[label = "{{<f0> node | -1 }| {<f1> min | 0} | {<f2> max| 3} } "];
 
-    node3[label = "{{<f0> node | 0 }| {<f1> min | -3} | {<f2> max| 0} } "];
-    node4[label = "{{<f0> node | 0 }| {<f1> min | -1} | {<f2> max| 1} } "];
 
-    node5[label = "{{<f0> node | 0 }| {<f1> min | 0} | {<f2> max| 2} } "];
-    node6[label = "{{<f0> node | 0 }| {<f1> min | 3} | {<f2> max| 3} } ", color=lightgray, style=filled];
-
-    node7[label = "{{<f0> node | 0 }| {<f1> min | -3} | {<f2> max| -1} } ", color=lightgray, style=filled];
-    node8[label = "{{<f0> node | 0 }| {<f1> min | -2} | {<f2> max| 0} } "];
-
-    node9[label = "{{<f0> node | 0 }| {<f1> min | -1} | {<f2> max| 1} } "];
-    node10[label = "{{<f0> node | 0 }| {<f1> min | 1} | {<f2> max| 1} } ", color=lightgray, style=filled];
-
-    node11[label = "{{<f0> node | 0 }| {<f1> min | 0} | {<f2> max| 2} } "];
-    node12[label = "{{<f0> node | 0 }| {<f1> min | 2} | {<f2> max| 2} } ", color=lightgray, style=filled];
-
-    node13[label = "{{<f0> node | 1 }| {<f1> min | -2} | {<f2> max| -1} } ", color=lightgray, style=filled];
-    node14[label = "{{<f0> node | 1 }| {<f1> min | 0} | {<f2> max| 0} } "];
-
-    node15[label = "{{<f0> node | 1 }| {<f1> min | -1} | {<f2> max| 0} } "];
-    node16[label = "{{<f0> node | 1 }| {<f1> min | 1} | {<f2> max| 1} } ", color=lightgray, style=filled];
-
-    node17[label = "{{<f0> node | 1 }| {<f1> min | 0} | {<f2> max| 1} } "];
-    node18[label = "{{<f0> node | 1 }| {<f1> min | 1} | {<f2> max| 1} } ", color=lightgray, style=filled];
-
-    node19[label = "{{<f0> node | 2 }| {<f1> min | 0} | {<f2> max| 0} } "];
-    node20[label = "{{<f0> node | 2 }| {<f1> min | -1} | {<f2> max| -1} } ", color=lightgray, style=filled];
-
-    node21[label = "{{<f0> node | 2 }| {<f1> min | -1} | {<f2> max| -1} } ", color=lightgray, style=filled];
-    node22[label = "{{<f0> node | 2 }| {<f1> min | 0} | {<f2> max| 0} } "];
-
-    node23[label = "{{<f0> node | 2 }| {<f1> min | 0} | {<f2> max| 0} } "];
-    node24[label = "{{<f0> node | 2 }| {<f1> min | 1} | {<f2> max| 1} } ", color=lightgray, style=filled];
-
-    "node0" -> "node1"[label = "in"];
-    "node0" -> "node2" [label = "out"];
-
-    "node1" -> "node3" [label = "in"];
-    "node1" -> "node4" [label = "out"];
-
-    "node2" -> "node5" [label = "in"];
-    "node2" -> "node6" [label = "out"];
-
-    "node3" -> "node7" [label = "in"];
-    "node3" -> "node8" [label = "out"];
-
-    "node4" -> "node9" [label = "in"];
-    "node4" -> "node10" [label = "out"];
-
-    "node5" -> "node11" [label = "in"];
-    "node5" -> "node12" [label = "out"];
-
-    "node8" -> "node13" [label = "in"];
-    "node8" -> "node14" [label = "out"];
-
-    "node9" -> "node15" [label = "in"];
-    "node9" -> "node16" [label = "out"];
-
-    "node11" -> "node17" [label = "in"];
-    "node11" -> "node18" [label = "out"];
-
-    "node14" -> "node19" [label = "in"];
-    "node14" -> "node20" [label = "out"];
-
-    "node15" -> "node21" [label = "in"];
-    "node15" -> "node22" [label = "out"];
-
-    "node17" -> "node23" [label = "in"];
-    "node17" -> "node24" [label = "out"];
+    "node0" -> "node1" [label = "in"];
+    "node1" -> "node2" [label = "in"];
+    "node2" -> "node3" [label = "in"];
+    "node2" -> "node4" [label = "out"];
+    "node1" -> "node5" [label = "out"];
+    
 
     
 }
