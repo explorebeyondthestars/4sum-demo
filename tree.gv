@@ -30,6 +30,8 @@ digraph G {
     node23[label = "{{id | node23}  | {<f1> min_composition | 0} | {<f2> max_composition| 0} | {options_indexes | [4, 5]} | { retained_indexes | [0, 1] } | { dropped_indexes | [2, 3]} | {input | [-2, -1, 0, 0, 1, 2]}} "];
     node24[label = "{{id | node24}  | {<f1> min_composition | 0} | {<f2> max_composition| 0} | {options_indexes | [5]} | { retained_indexes | [0, 1, 4] } | { dropped_indexes | [2, 3]} | {input | [-2, -1, 0, 0, 1, 2]}} "];
     node25[label = "{{id | node25}  | {<f1> min_composition | 0} | {<f2> max_composition| 0} | {options_indexes | []} | { retained_indexes | [0, 1, 4, 5] } | { dropped_indexes | [2, 3]} | {input | [-2, -1, 0, 0, 1, 2]}} "];
+    node26[label = "{{id | node26}  | {<f1> min_composition | -2} | {<f2> max_composition| -2} | {options_indexes | []} | { retained_indexes | [0, 1, 4] } | { dropped_indexes | [2, 3, 5]} | {input | [-2, -1, 0, 0, 1, 2]}} ", style = filled];
+    node27[label = "{{id | node27}  | {<f1> min_composition | -1} | {<f2> max_composition| -1} | {options_indexes | [5]} | { retained_indexes | [0, 1] } | { dropped_indexes | [2, 3, 5]} | {input | [-2, -1, 0, 0, 1, 2]}} ", style = filled];
 
     "node0" -> "node1" [label = "in"];
     "node1" -> "node2" [label = "in"];
@@ -56,5 +58,7 @@ digraph G {
     "node4" -> "node23" [label = "out"];
     "node23" -> "node24" [label = "in"];
     "node24" -> "node25" [label = "in"];
+    "node24" -> "node26" [label = "out"];
+    "node23" -> "node27" [label = "out"];
     
 }
