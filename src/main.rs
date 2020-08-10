@@ -1,22 +1,67 @@
-struct Node<'a> {
-    id: String,
-    k_value: usize,
-    min_composition: i32,
-    max_composition: i32,
-    options_indexes: &'a mut Vec<usize>,
-    retained_indexes: &'a mut Vec<usize>,
-    dropped_indexes: &'a mut Vec<usize>,
-    input: &'a Vec<i32>,
-    left_node: Box<Branch<'a>>,
-    right_node: Box<Branch<'a>>
+// Test:
+
+struct DOTDrawer {
+    graphviz_dot_string: String,
+    started: bool,
+    finished: bool
 }
 
-enum Branch<'a> {
-    BranchNode(Node<'a>),
-    Nil
-}
+impl DOTDrawer {
 
-use crate::Branch::{BranchNode, Nil};
+    pub fn new() -> Self {
+        let dot_string = String::from("");
+        return DOTDrawer {
+            graphviz_dot_string: dot_string,
+            started: false,
+            finished: false
+        };
+    }
+
+    fn append_string(&mut self, string_to_append: &str) {
+        self.graphviz_dot_string = format!("{}{}", self.graphviz_dot_string, string_to_append);
+    }
+
+    pub fn start(&mut self) {
+        if !self.started {
+            self.append_string("digraph G {node[shape = record];");
+            self.started = true;
+        }
+    }
+
+    pub fn add_node(&mut self, id: &str, min: i32, max: i32, options: &Vec<usize>, retained: &Vec<usize>, dropped: &Vec<usize>, input: &Vec<i32>, sealed: bool) {
+        if (!self.finished) && (self.started) {
+            let id_string = id;
+            let node_string_content = format!("label = \" {{ {{ id | {} }} | {{ min | {} }} | {{ max | {} }} | {{ options | {:?} }} | {{ retained | {:?} }} | {{ dropped | {:?} }} | {{ input | {:?} }} }}\"", id_string, min, max, options, retained, dropped, input);
+            let sealed_sign = match sealed {
+                true => ", style = filled",
+                false => ""
+            };
+            let node_string = format!("{} [{}{}];", id_string, node_string_content, sealed_sign);
+            
+            self.append_string(&node_string);
+        }
+    }
+
+    pub fn root(&mut self, id: &str, min: i32, max: i32, options: &Vec<usize>, retained: &Vec<usize>, dropped: &Vec<usize>, input: &Vec<i32>, sealed: bool) {
+        self.add_node(id, min, max, options, retained, dropped, input, sealed);
+    }
+
+    pub fn connect(&mut self, from_id: &str, to_id: &str, connect_type: &str) {
+        let connect_string = format!("{} -> {} [label = \"{}\"]; ", from_id, to_id, connect_type);
+        self.append_string(&connect_string);
+    }
+
+    pub fn end(&mut self) {
+        if !self.finished {
+            self.append_string("}");
+            self.finished = true;
+        }
+    }
+
+    pub fn print(&self) {
+        println!("{}", self.graphviz_dot_string);
+    }
+}
 
 // Input:
 // array = [-2, -1, 0, 0, 1, 2]
@@ -247,8 +292,29 @@ fn main() {
     let mut solutions: Vec<(usize, usize, usize, usize)> = Vec::new();
     let mut round: u32 = 0;
 
-    searcher(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions);
+    // searcher(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions);
 
-    println!("Solutions: {:?}", solutions);
+    // println!("Solutions: {:?}", solutions);
+
+    let mut dot_drawer = DOTDrawer::new();
+    dot_drawer.start();
+
+    let test_id_0 = String::from("node0");
+    let test_id_1 = String::from("node1");
+    let test_id_2 = String::from("node2");
+    let test_min: i32 = -3;
+    let test_max: i32 = -3;
+    let test_options = vec![0, 1, 2, 3, 4, 5];
+    let test_retained = vec![0, 1];
+    let test_dropped = vec![0, 1, 2, 3];
+    let test_input = vec![1, 2, 3, 4];
+
+    dot_drawer.root(&test_id_0, test_min, test_max, &test_options, &test_retained, &test_dropped, &test_input, false);
+    dot_drawer.add_node(&test_id_1, test_min, test_max, &test_options, &test_retained, &test_dropped, &test_input, false);
+    dot_drawer.add_node(&test_id_2, test_min, test_max, &test_options, &test_retained, &test_dropped, &test_input, true);
+    dot_drawer.connect(&test_id_0, &test_id_1, "in");
+    dot_drawer.connect(&test_id_0, &test_id_2, "out");
+    dot_drawer.end();
+    dot_drawer.print();
 
 }
