@@ -6,3 +6,6 @@ clean:
 
 preview: tree.pdf
 	open ./tree.pdf
+
+png: tree.gv
+	dot -Tpng tree.gv -o tree.png
