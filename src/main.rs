@@ -1,8 +1,22 @@
-struct Node {
-    value: i32,
-    min: i32,
-    max: i32
+struct Node<'a> {
+    id: String,
+    k_value: usize,
+    min_composition: i32,
+    max_composition: i32,
+    options_indexes: &'a mut Vec<usize>,
+    retained_indexes: &'a mut Vec<usize>,
+    dropped_indexes: &'a mut Vec<usize>,
+    input: &'a Vec<i32>,
+    left_node: Box<Branch<'a>>,
+    right_node: Box<Branch<'a>>
 }
+
+enum Branch<'a> {
+    BranchNode(Node<'a>),
+    Nil
+}
+
+use crate::Branch::{BranchNode, Nil};
 
 // Input:
 // array = [-2, -1, 0, 0, 1, 2]
@@ -87,6 +101,20 @@ fn right_sum_by_indexes(array: &Vec<i32>, indexes: &Vec<usize>, k: usize) -> i32
     return sum;
 }
 
+fn searcher(
+    considering_index: usize,
+    k_value: usize,
+    options_indexes: &mut Vec<usize>,
+    retained_indexes: &mut Vec<usize>,
+    dropped_indexes: &mut Vec<usize>,
+    input_array: &Vec<i32>
+) -> Vec<(usize, usize, usize, usize)> {
+
+    
+
+    return vec![(0, 1, 2, 3)];
+}
+
 fn main() {
 
     let mut input: Vec<i32> = vec![1, 0, -1, 0, -2, 2];
@@ -111,16 +139,39 @@ fn main() {
 
     println!("Target is: {}", target);
 
-    let test_array_1: Vec<i32> = vec![-2, -1, 0, 0, 1, 2];
-    let test_indexes_1: Vec<usize> = vec![0, 2, 3, 5];
-    let test_k_value_1: usize = 3;
-    let test_result_value_1 = left_sum_by_indexes(&test_array_1, &test_indexes_1, test_k_value_1);
-    assert_eq!(test_result_value_1, -2);
-
-    let test_array_2: Vec<i32> = vec![-2, -1, 0, 0, 1, 2, 4];
-    let test_indexes_2: Vec<usize> = vec![0, 1, 4, 5, 6];
-    let test_k_value_2: usize = 2;
-    let test_result_value_2 = right_sum_by_indexes(&test_array_2, &test_indexes_2, test_k_value_2);
-    assert_eq!(test_result_value_2, 6);
+    let root = Node {
+        id: "node0".to_string(),
+        k_value: 4,
+        min_composition: -3,
+        max_composition: -3,
+        options_indexes: &mut vec![0, 1, 2, 3, 4, 5],
+        retained_indexes: &mut vec![],
+        dropped_indexes: &mut vec![],
+        input: &vec![-2, -1, 0, 0, 1, 2],
+        left_node: Box::new(BranchNode(Node {
+            id: "node0".to_string(),
+            k_value: 4,
+            min_composition: -3,
+            max_composition: -3,
+            options_indexes: &mut vec![0, 1, 2, 3, 4, 5],
+            retained_indexes: &mut vec![],
+            dropped_indexes: &mut vec![],
+            input: &vec![-2, -1, 0, 0, 1, 2],
+            left_node: Box::new(Nil),
+            right_node: Box::new(Nil)
+        })),
+        right_node: Box::new(BranchNode(Node {
+            id: "node0".to_string(),
+            k_value: 4,
+            min_composition: -3,
+            max_composition: -3,
+            options_indexes: &mut vec![0, 1, 2, 3, 4, 5],
+            retained_indexes: &mut vec![],
+            dropped_indexes: &mut vec![],
+            input: &vec![-2, -1, 0, 0, 1, 2],
+            left_node: Box::new(Nil),
+            right_node: Box::new(Nil)
+        }))
+    };
 
 }
