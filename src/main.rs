@@ -37,13 +37,23 @@ use crate::Branch::{BranchNode, Nil};
 // assert_eq!(test_result_value_1, -2);
 fn left_sum_by_indexes(array: &Vec<i32>, indexes: &Vec<usize>, k: usize) -> i32 {
 
-    let mut i: usize = 0;
-    let mut sum: i32 = 0;
-    let len = indexes.len();
+    // Bound check
+    if let Some(value) = indexes.iter().max() {
+        if (*value) > (array.len()-1) {
+            let msg = format!("Irregular indexes: {:?}", *indexes);
+            panic!(msg);
+        }
+    }
 
-    while i < len && i < k {
-        sum = sum + (*array)[indexes[i]];
-        i = i + 1;
+    let mut sum: i32 = 0;
+    let mut count: usize = indexes.len().min(k);
+    let mut index: usize = 0;
+
+    while count > 0 {
+        sum = sum + array[indexes[index]];
+
+        count = count - 1;
+        index = index + 1;
     }
 
     return sum;
@@ -68,51 +78,148 @@ fn left_sum_by_indexes(array: &Vec<i32>, indexes: &Vec<usize>, k: usize) -> i32 
 // assert_eq!(test_result_value_2, 6);
 fn right_sum_by_indexes(array: &Vec<i32>, indexes: &Vec<usize>, k: usize) -> i32 {
 
+    // Bound check
     if let Some(value) = indexes.iter().max() {
         if (*value) > (array.len()-1) {
             let msg = format!("Irregular indexes: {:?}", *indexes);
             panic!(msg);
-            return 0;
         }
-    }
-
-    if let Some(value) = indexes.iter().min() {
-        if (*value) < 0 {
-            let msg = format!("Irregular indexes: {:?}", *indexes);
-            panic!(msg);
-            return 0;
-        }
-    }
-
-    let mut i: usize = indexes.len() - 1;
-    if i < 0 {
-        return 0;
     }
 
     let mut sum: i32 = 0;
+    let mut count: usize = indexes.len().min(k);
+    let mut index: usize = match indexes.len() {
+        0 => 0,
+        _ => indexes.len() - 1
+    };
+    while count > 0 {
+        sum = sum + array[indexes[index]];
+        count = count - 1;
 
-    let mut count: usize = 0;
-    while i >= 0 && count < k {
-        sum = sum + (*array)[indexes[i]];
-        i = i - 1;
-        count = count + 1;
+        if index > 0 {
+            index = index - 1;
+        }
+    }
+
+    return sum;
+}
+
+// Input:
+// array = [3, 2, 8, 7, 6]
+// indexes = [0, 2, 3]
+// 
+// Compute:
+// sum = array[0] + array[2] + array[3] = 3 + 8 + 7 = 18
+//
+// Output:
+// sum = 18
+//
+// Test:
+// let test_array: Vec<i32> = vec![3, 2, 8, 7, 6];
+// let test_indexes: Vec<usize> = vec![0, 2, 3];
+// let test_result = sum_by_indexes(&test_array, &test_indexes);
+// assert_eq!(test_result, 3 + 8 + 7);
+fn sum_by_indexes(array: &Vec<i32>, indexes: &Vec<usize>) -> i32 {
+    let mut sum: i32 = 0;
+    for index in indexes {
+        sum = sum + array[*index];
     }
 
     return sum;
 }
 
 fn searcher(
-    considering_index: usize,
-    k_value: usize,
-    options_indexes: &mut Vec<usize>,
-    retained_indexes: &mut Vec<usize>,
-    dropped_indexes: &mut Vec<usize>,
-    input_array: &Vec<i32>
-) -> Vec<(usize, usize, usize, usize)> {
+    options: &mut Vec<usize>,
+    retained: &mut Vec<usize>,
+    dropped: &mut Vec<usize>,
+    input: &Vec<i32>,
+    round: &mut u32,
+    k: usize,
+    target: i32,
+    solutions: &mut Vec<(usize, usize, usize, usize)>
+) {
 
-    
+    println!("Iter: {}", *round);
+    println!("Options: {:?}", options);
+    println!("Retained: {:?}", retained);
+    println!("Dropped: {:?}", dropped);
+    println!("Input: {:?}", input);
+    println!("Target: {:?}", target);
 
-    return vec![(0, 1, 2, 3)];
+    let current_k = k - retained.len();
+    let retained_sum = sum_by_indexes(input, retained);
+    let min: i32 = retained_sum + left_sum_by_indexes(input, options, current_k);
+    let max: i32 = retained_sum + right_sum_by_indexes(input, options, current_k);
+
+    println!("Min: {}", min);
+    println!("Max: {}", max);
+
+    if current_k == 0 {
+        // Say that We've already collected enough items
+        // Let's check if it satisfies ...
+
+        if target == retained_sum {
+            // When it satisfies ...
+            // Then we push it into the solution set
+
+            solutions.push((retained[0], retained[1], retained[2], retained[3]));
+        }
+
+        return;
+
+    }
+
+    // We still need collect more items
+
+    // First We check that 
+    // if there exit(s) solution(s) under current context ...
+
+    if (target < min) || (target > max) {
+        // This indicates that it won't be possible 
+        // to find any solution if We branching in.
+
+        // So cutting off.
+
+        return;
+
+    }
+
+    // It's still possible 
+    // to find (some) solution(s) in left or/and right branch
+
+    // Make sure that there be still items in option set
+    if options.len() < 1 {
+        return;
+    }
+
+    // Start making left branch ...
+    println!("Left branching ...");
+
+    let considering: usize = options.remove(0);
+    retained.push(considering);
+
+    *round = *round + 1;
+    searcher(options, retained, dropped, input, round, k, target, solutions);
+
+    // After the left branch returned, make right branch ...
+    println!("Right branching ...");
+
+    let considering_opt: Option<usize> = retained.pop();
+    if let Some(usize_value) = considering_opt {
+        dropped.push(usize_value);
+        *round = *round + 1;
+        searcher(options, retained, dropped, input, round, k, target, solutions);
+    }
+
+    // After the right branch returned, 
+    // should restore the scene for the parent branch
+    println!("Returning ...");
+
+    let considering_opt: Option<usize> = dropped.pop();
+    if let Some(usize_value) = considering_opt {
+        options.insert(0, usize_value);
+    }
+
 }
 
 fn main() {
@@ -121,57 +228,27 @@ fn main() {
     input.sort(); // After sorting: [-2, -1, 0, 0, 1, 2]
 
     let target: i32 = 0;
-    let k_value: i32 = 4;
+    let k_value: usize = 4;
 
     println!("Input array is: {:?}", input);
     println!("Number of items in input array: {}", input.len());
     println!("Number of items in each solution: {}", k_value);
 
-    let min = input.iter().min();
-    if let Some(value) = min {
-        println!("Min value is: {}", value);
+    let mut options: Vec<usize> = Vec::new();
+    let mut i: usize = 0;
+    while i < input.len() {
+        options.push(i);
+        i = i + 1;
     }
 
-    let max = input.iter().max();
-    if let Some(value) = max {
-        println!("Max value is: {}", value);
-    }
+    let mut retained: Vec<usize> = Vec::new();
+    let mut dropped: Vec<usize> = Vec::new();
 
-    println!("Target is: {}", target);
+    let mut solutions: Vec<(usize, usize, usize, usize)> = Vec::new();
+    let mut round: u32 = 0;
 
-    let root = Node {
-        id: "node0".to_string(),
-        k_value: 4,
-        min_composition: -3,
-        max_composition: -3,
-        options_indexes: &mut vec![0, 1, 2, 3, 4, 5],
-        retained_indexes: &mut vec![],
-        dropped_indexes: &mut vec![],
-        input: &vec![-2, -1, 0, 0, 1, 2],
-        left_node: Box::new(BranchNode(Node {
-            id: "node0".to_string(),
-            k_value: 4,
-            min_composition: -3,
-            max_composition: -3,
-            options_indexes: &mut vec![0, 1, 2, 3, 4, 5],
-            retained_indexes: &mut vec![],
-            dropped_indexes: &mut vec![],
-            input: &vec![-2, -1, 0, 0, 1, 2],
-            left_node: Box::new(Nil),
-            right_node: Box::new(Nil)
-        })),
-        right_node: Box::new(BranchNode(Node {
-            id: "node0".to_string(),
-            k_value: 4,
-            min_composition: -3,
-            max_composition: -3,
-            options_indexes: &mut vec![0, 1, 2, 3, 4, 5],
-            retained_indexes: &mut vec![],
-            dropped_indexes: &mut vec![],
-            input: &vec![-2, -1, 0, 0, 1, 2],
-            left_node: Box::new(Nil),
-            right_node: Box::new(Nil)
-        }))
-    };
+    searcher(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions);
+
+    println!("Solutions: {:?}", solutions);
 
 }
