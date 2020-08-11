@@ -216,7 +216,6 @@ fn searcher(
     let min: i32 = retained_sum + left_sum_by_indexes(input, options, current_k);
     let max: i32 = retained_sum + right_sum_by_indexes(input, options, current_k);
     let id_string = format!("node{}", round);
-    let mut sealed = true;
 
     println!("Min: {}", min);
     println!("Max: {}", max);
@@ -230,14 +229,18 @@ fn searcher(
             // Then we push it into the solution set
 
             solutions.push((retained[0], retained[1], retained[2], retained[3]));
-            sealed = false;
+            drawer.add_node(&id_string, min, max, options, retained, dropped, input, false);
+        }
+        else {
+            drawer.add_node(&id_string, min, max, options, retained, dropped, input, true);
         }
 
         return;
 
     }
 
-    drawer.add_node(&id_string, min, max, options, retained, dropped, input, sealed);
+    drawer.add_node(&id_string, min, max, options, retained, dropped, input, false);
+
 
     // We still need collect more items
 
@@ -250,6 +253,8 @@ fn searcher(
 
         // So cutting off.
 
+        drawer.add_node(&id_string, min, max, options, retained, dropped, input, true);
+
         return;
 
     }
@@ -259,6 +264,9 @@ fn searcher(
 
     // Make sure that there be still items in option set
     if options.len() < 1 {
+
+        drawer.add_node(&id_string, min, max, options, retained, dropped, input, true);
+
         return;
     }
 
@@ -269,8 +277,8 @@ fn searcher(
     retained.push(considering);
 
     *round = *round + 1;
-    searcher(options, retained, dropped, input, round, k, target, solutions, drawer);
     let left_branch_node_id = format!("node{}", *round);
+    searcher(options, retained, dropped, input, round, k, target, solutions, drawer);
     drawer.connect(&id_string, &left_branch_node_id, "in");
 
     // After the left branch returned, make right branch ...
@@ -280,9 +288,9 @@ fn searcher(
     if let Some(usize_value) = considering_opt {
         dropped.push(usize_value);
         *round = *round + 1;
-        searcher(options, retained, dropped, input, round, k, target, solutions, drawer);
         let right_branch_node_id = format!("node{}", *round);
-        drawer.connect(&id_string, &right_branch_node_id, "in");
+        searcher(options, retained, dropped, input, round, k, target, solutions, drawer);
+        drawer.connect(&id_string, &right_branch_node_id, "out");
     }
 
     // After the right branch returned, 
