@@ -1,3 +1,6 @@
+use std::fs::File;
+use std::io::prelude::*;
+
 // Test:
 // let mut dot_drawer = DOTDrawer::new();
 // dot_drawer.start();
@@ -79,6 +82,10 @@ impl DOTDrawer {
 
     pub fn print(&self) {
         println!("{}", self.graphviz_dot_string);
+    }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        return self.graphviz_dot_string.as_bytes();
     }
 }
 
@@ -333,7 +340,16 @@ fn main() {
     drawer.start();
     searcher(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions, &mut drawer);
     drawer.end();
-    drawer.print();
+    // drawer.print();
+
+    let mut file_r = File::create("output.gv");
+    if let Ok(file) = &mut file_r {
+        let w = file.write_all(drawer.as_bytes());
+        match w {
+            Err(_) => panic!("Can't write."),
+            Ok(_) => ()
+        }
+    }
 
     // println!("Solutions: {:?}", solutions);
 
