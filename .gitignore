@@ -7,3 +7,7 @@ Cargo.lock
 #already existing elements were commented out
 
 #/target
+
+output.gv
+output.pdf
+output.log.txt
