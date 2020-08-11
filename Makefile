@@ -1,11 +1,23 @@
-tree.pdf : tree.gv
-	dot -Tpdf tree.gv -o tree.pdf
+output.gv:
+	cargo run
 
-clean: 
-	rm ./tree.pdf
+output.pdf : output.gv
+	dot -Tpdf output.gv -o output.pdf
 
-preview: tree.pdf
-	open ./tree.pdf
+preview: output.pdf
+	open output.pdf
 
-png: tree.gv
-	dot -Tpng tree.gv -o tree.png
+png: output.gv
+	dot -Tpng output.gv -o output.png
+
+target/debug/tree: 
+	cargo build
+
+test: target/debug/tree
+	./target/debug/tree 1>output.log.txt
+
+clean:
+	rm -f output.pdf
+	rm -f output.png
+	rm -f output.gv
+	rm -f output.log.txt
