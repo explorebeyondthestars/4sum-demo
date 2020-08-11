@@ -208,7 +208,8 @@ fn searcher(
     round: &mut u32,
     k: usize,
     target: i32,
-    solutions: &mut Vec<(usize, usize, usize, usize)>,
+    solutions: &mut Vec<Vec<i32>>,
+    solutions_recorder: &mut HashMap<String, bool>,
     drawer: &mut DOTDrawer
 ) {
 
@@ -236,7 +237,17 @@ fn searcher(
             // When it satisfies ...
             // Then we push it into the solution set
 
-            solutions.push((retained[0], retained[1], retained[2], retained[3]));
+            let v0 = input[retained[0]];
+            let v1 = input[retained[1]];
+            let v2 = input[retained[2]];
+            let v3 = input[retained[3]];
+
+            let solution_string = format!("({}, {}, {}, {})", v0, v1, v2, v3);
+            if ! solutions_recorder.contains_key(&solution_string) {
+                solutions.push(vec![ v0, v1, v2, v3 ]);
+                solutions_recorder.insert(solution_string, true);
+            }
+
             drawer.add_node(&id_string, min, max, options, retained, dropped, input, false);
         }
         else {
@@ -286,7 +297,7 @@ fn searcher(
 
     *round = *round + 1;
     let left_branch_node_id = format!("node{}", *round);
-    searcher(options, retained, dropped, input, round, k, target, solutions, drawer);
+    searcher(options, retained, dropped, input, round, k, target, solutions, solutions_recorder, drawer);
     drawer.connect(&id_string, &left_branch_node_id, "in");
 
     // After the left branch returned, make right branch ...
@@ -297,7 +308,7 @@ fn searcher(
         dropped.push(usize_value);
         *round = *round + 1;
         let right_branch_node_id = format!("node{}", *round);
-        searcher(options, retained, dropped, input, round, k, target, solutions, drawer);
+        searcher(options, retained, dropped, input, round, k, target, solutions, solutions_recorder, drawer);
         drawer.connect(&id_string, &right_branch_node_id, "out");
     }
 
@@ -444,23 +455,20 @@ fn main() {
     let mut solutions_recorder: HashMap<String, bool> = HashMap::new();
     let mut round: u32 = 0;
 
-    searcher_pro(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions, &mut solutions_recorder);
+    // searcher_pro(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions, &mut solutions_recorder);
+    let mut drawer = DOTDrawer::new();
+    drawer.start();
+    searcher(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions, &mut solutions_recorder, &mut drawer);
+    drawer.end();
 
-    // let mut drawer = DOTDrawer::new();
-    // drawer.start();
-    // searcher(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions, &mut drawer);
-    // drawer.end();
-    // drawer.print();
-
-
-    // let mut file_r = File::create("output.gv");
-    // if let Ok(file) = &mut file_r {
-    //     let w = file.write_all(drawer.as_bytes());
-    //     match w {
-    //         Err(_) => panic!("Can't write."),
-    //         Ok(_) => ()
-    //     }
-    // }
+    let mut file_r = File::create("output.gv");
+    if let Ok(file) = &mut file_r {
+        let w = file.write_all(drawer.as_bytes());
+        match w {
+            Err(_) => panic!("Can't write."),
+            Ok(_) => ()
+        }
+    }
 
     println!("Solutions: {:?}", solutions);
 
