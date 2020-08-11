@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
+use std::collections::HashMap;
 
 // Test:
 // let mut dot_drawer = DOTDrawer::new();
@@ -311,10 +312,115 @@ fn searcher(
 
 }
 
+fn searcher_pro(
+    options: &mut Vec<usize>,
+    retained: &mut Vec<usize>,
+    dropped: &mut Vec<usize>,
+    input: &Vec<i32>,
+    round: &mut u32,
+    k: usize,
+    target: i32,
+    solutions: &mut Vec<Vec<i32>>,
+    solutions_recorder: &mut HashMap<String, bool>
+) {
+
+    println!("Iter: {}", *round);
+    println!("Options: {:?}", options);
+    println!("Retained: {:?}", retained);
+    println!("Dropped: {:?}", dropped);
+    println!("Input: {:?}", input);
+    println!("Target: {:?}", target);
+
+    let current_k = k - retained.len();
+    let retained_sum = sum_by_indexes(input, retained);
+    let min: i32 = retained_sum + left_sum_by_indexes(input, options, current_k);
+    let max: i32 = retained_sum + right_sum_by_indexes(input, options, current_k);
+
+    println!("Min: {}", min);
+    println!("Max: {}", max);
+
+    if current_k == 0 {
+        // Say that We've already collected enough items
+        // Let's check if it satisfies ...
+
+        if target == retained_sum {
+            // When it satisfies ...
+            // Then we push it into the solution set
+
+            let v0 = input[retained[0]];
+            let v1 = input[retained[1]];
+            let v2 = input[retained[2]];
+            let v3 = input[retained[3]];
+
+            let solution_string = format!("({}, {}, {}, {})", v0, v1, v2, v3);
+            if ! solutions_recorder.contains_key(&solution_string) {
+                solutions.push(vec![ v0, v1, v2, v3 ]);
+                solutions_recorder.insert(solution_string, true);
+            }
+        }
+
+        return;
+
+    }
+
+
+    // We still need collect more items
+
+    // First We check that 
+    // if there exit(s) solution(s) under current context ...
+
+    if (target < min) || (target > max) {
+        // This indicates that it won't be possible 
+        // to find any solution if We branching in.
+
+        // So cutting off.
+
+        return;
+
+    }
+
+    // It's still possible 
+    // to find (some) solution(s) in left or/and right branch
+
+    // Make sure that there be still items in option set
+    if options.len() < 1 {
+        return;
+    }
+
+    // Start making left branch ...
+    println!("Left branching ...");
+
+    let considering: usize = options.remove(0);
+    retained.push(considering);
+
+    *round = *round + 1;
+    searcher_pro(options, retained, dropped, input, round, k, target, solutions, solutions_recorder);
+
+    // After the left branch returned, make right branch ...
+    println!("Right branching ...");
+
+    let considering_opt: Option<usize> = retained.pop();
+    if let Some(usize_value) = considering_opt {
+        dropped.push(usize_value);
+        *round = *round + 1;
+        searcher_pro(options, retained, dropped, input, round, k, target, solutions, solutions_recorder);
+    }
+
+    // After the right branch returned, 
+    // should restore the scene for the parent branch
+    println!("Returning ...");
+
+    let considering_opt: Option<usize> = dropped.pop();
+    if let Some(usize_value) = considering_opt {
+        options.insert(0, usize_value);
+    }
+
+}
+
 fn main() {
 
-    let mut input: Vec<i32> = vec![1, 0, -1, 0, -2, 2];
-    input.sort(); // After sorting: [-2, -1, 0, 0, 1, 2]
+    let mut input: Vec<i32> = vec![-3,-2,-1,0,0,1,2,3];
+    input.sort(); 
 
     let target: i32 = 0;
     let k_value: usize = 4;
@@ -333,24 +439,29 @@ fn main() {
     let mut retained: Vec<usize> = Vec::new();
     let mut dropped: Vec<usize> = Vec::new();
 
-    let mut solutions: Vec<(usize, usize, usize, usize)> = Vec::new();
+    // let mut solutions: Vec<(usize, usize, usize, usize)> = Vec::new();
+    let mut solutions: Vec<Vec<i32>> = Vec::new();
+    let mut solutions_recorder: HashMap<String, bool> = HashMap::new();
     let mut round: u32 = 0;
 
-    let mut drawer = DOTDrawer::new();
-    drawer.start();
-    searcher(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions, &mut drawer);
-    drawer.end();
+    searcher_pro(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions, &mut solutions_recorder);
+
+    // let mut drawer = DOTDrawer::new();
+    // drawer.start();
+    // searcher(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions, &mut drawer);
+    // drawer.end();
     // drawer.print();
 
-    let mut file_r = File::create("output.gv");
-    if let Ok(file) = &mut file_r {
-        let w = file.write_all(drawer.as_bytes());
-        match w {
-            Err(_) => panic!("Can't write."),
-            Ok(_) => ()
-        }
-    }
 
-    // println!("Solutions: {:?}", solutions);
+    // let mut file_r = File::create("output.gv");
+    // if let Ok(file) = &mut file_r {
+    //     let w = file.write_all(drawer.as_bytes());
+    //     match w {
+    //         Err(_) => panic!("Can't write."),
+    //         Ok(_) => ()
+    //     }
+    // }
+
+    println!("Solutions: {:?}", solutions);
 
 }
