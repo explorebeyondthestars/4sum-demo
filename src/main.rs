@@ -1,5 +1,24 @@
 // Test:
+// let mut dot_drawer = DOTDrawer::new();
+// dot_drawer.start();
 
+// let test_id_0 = String::from("node0");
+// let test_id_1 = String::from("node1");
+// let test_id_2 = String::from("node2");
+// let test_min: i32 = -3;
+// let test_max: i32 = -3;
+// let test_options = vec![0, 1, 2, 3, 4, 5];
+// let test_retained = vec![0, 1];
+// let test_dropped = vec![0, 1, 2, 3];
+// let test_input = vec![1, 2, 3, 4];
+
+// dot_drawer.root(&test_id_0, test_min, test_max, &test_options, &test_retained, &test_dropped, &test_input, false);
+// dot_drawer.add_node(&test_id_1, test_min, test_max, &test_options, &test_retained, &test_dropped, &test_input, false);
+// dot_drawer.add_node(&test_id_2, test_min, test_max, &test_options, &test_retained, &test_dropped, &test_input, true);
+// dot_drawer.connect(&test_id_0, &test_id_1, "in");
+// dot_drawer.connect(&test_id_0, &test_id_2, "out");
+// dot_drawer.end();
+// dot_drawer.print();
 struct DOTDrawer {
     graphviz_dot_string: String,
     started: bool,
@@ -181,7 +200,8 @@ fn searcher(
     round: &mut u32,
     k: usize,
     target: i32,
-    solutions: &mut Vec<(usize, usize, usize, usize)>
+    solutions: &mut Vec<(usize, usize, usize, usize)>,
+    drawer: &mut DOTDrawer
 ) {
 
     println!("Iter: {}", *round);
@@ -195,6 +215,8 @@ fn searcher(
     let retained_sum = sum_by_indexes(input, retained);
     let min: i32 = retained_sum + left_sum_by_indexes(input, options, current_k);
     let max: i32 = retained_sum + right_sum_by_indexes(input, options, current_k);
+    let id_string = format!("node{}", round);
+    let mut sealed = true;
 
     println!("Min: {}", min);
     println!("Max: {}", max);
@@ -208,11 +230,14 @@ fn searcher(
             // Then we push it into the solution set
 
             solutions.push((retained[0], retained[1], retained[2], retained[3]));
+            sealed = false;
         }
 
         return;
 
     }
+
+    drawer.add_node(&id_string, min, max, options, retained, dropped, input, sealed);
 
     // We still need collect more items
 
@@ -244,7 +269,9 @@ fn searcher(
     retained.push(considering);
 
     *round = *round + 1;
-    searcher(options, retained, dropped, input, round, k, target, solutions);
+    searcher(options, retained, dropped, input, round, k, target, solutions, drawer);
+    let left_branch_node_id = format!("node{}", *round);
+    drawer.connect(&id_string, &left_branch_node_id, "in");
 
     // After the left branch returned, make right branch ...
     println!("Right branching ...");
@@ -253,7 +280,9 @@ fn searcher(
     if let Some(usize_value) = considering_opt {
         dropped.push(usize_value);
         *round = *round + 1;
-        searcher(options, retained, dropped, input, round, k, target, solutions);
+        searcher(options, retained, dropped, input, round, k, target, solutions, drawer);
+        let right_branch_node_id = format!("node{}", *round);
+        drawer.connect(&id_string, &right_branch_node_id, "in");
     }
 
     // After the right branch returned, 
@@ -292,29 +321,12 @@ fn main() {
     let mut solutions: Vec<(usize, usize, usize, usize)> = Vec::new();
     let mut round: u32 = 0;
 
-    // searcher(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions);
+    let mut drawer = DOTDrawer::new();
+    drawer.start();
+    searcher(&mut options, &mut retained, &mut dropped, &input, &mut round, k_value, target, &mut solutions, &mut drawer);
+    drawer.end();
+    drawer.print();
 
     // println!("Solutions: {:?}", solutions);
-
-    let mut dot_drawer = DOTDrawer::new();
-    dot_drawer.start();
-
-    let test_id_0 = String::from("node0");
-    let test_id_1 = String::from("node1");
-    let test_id_2 = String::from("node2");
-    let test_min: i32 = -3;
-    let test_max: i32 = -3;
-    let test_options = vec![0, 1, 2, 3, 4, 5];
-    let test_retained = vec![0, 1];
-    let test_dropped = vec![0, 1, 2, 3];
-    let test_input = vec![1, 2, 3, 4];
-
-    dot_drawer.root(&test_id_0, test_min, test_max, &test_options, &test_retained, &test_dropped, &test_input, false);
-    dot_drawer.add_node(&test_id_1, test_min, test_max, &test_options, &test_retained, &test_dropped, &test_input, false);
-    dot_drawer.add_node(&test_id_2, test_min, test_max, &test_options, &test_retained, &test_dropped, &test_input, true);
-    dot_drawer.connect(&test_id_0, &test_id_1, "in");
-    dot_drawer.connect(&test_id_0, &test_id_2, "out");
-    dot_drawer.end();
-    dot_drawer.print();
 
 }
